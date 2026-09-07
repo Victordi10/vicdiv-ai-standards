@@ -365,6 +365,7 @@ Código:
 - variables y funciones: `camelCase`;
 - componentes, clases y tipos: `PascalCase`;
 - nombres descriptivos;
+- usar siempre TypeScript en vez de JavaScript: escribir el código fuente en `.ts` / `.tsx` y no crear archivos `.js` / `.jsx` nuevos con lógica de aplicación;
 - evitar `any` salvo excepción justificada.
 
 Base de datos:

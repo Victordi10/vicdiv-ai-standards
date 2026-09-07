@@ -28,6 +28,12 @@ Evitar funciones, componentes y servicios que hagan demasiadas cosas.
 
 ## Tipos
 
+Usar siempre TypeScript en vez de JavaScript.
+
+- Todo el código fuente se escribe en TypeScript (`.ts` / `.tsx`).
+- No crear archivos `.js` / `.jsx` nuevos que contengan lógica de aplicación.
+- Aprovechar los tipos para expresar contratos, autocompletado y mantenibilidad.
+
 Evitar `any` salvo casos justificados.
 
 ## Validación

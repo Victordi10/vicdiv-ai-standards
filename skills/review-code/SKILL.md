@@ -9,14 +9,15 @@ Encontrar problemas reales, no realizar críticas estéticas sin impacto.
 1. Arquitectura.
 2. Separación de responsabilidades.
 3. Reutilización/duplicación.
-4. Estado.
-5. Validación.
-6. DB.
-7. Seguridad.
-8. Manejo de errores.
-9. Performance.
-10. Tests.
-11. Documentación relevante.
+4. Uso de TypeScript en vez de JavaScript (sin archivos `.js`/`.jsx` con lógica de aplicación).
+5. Estado.
+6. Validación.
+7. DB.
+8. Seguridad.
+9. Manejo de errores.
+10. Performance.
+11. Tests.
+12. Documentación relevante.
 
 ## Prioridad
 
