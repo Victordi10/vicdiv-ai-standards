@@ -5,10 +5,11 @@
 - App Router.
 - Server Components por defecto.
 - `"use client"` únicamente cuando sea necesario.
-- Tailwind CSS en web.
+- Tailwind CSS en web (por defecto).
 - Zustand para estado global.
 - TanStack Query para server state.
 - Axios para HTTP cuando corresponda.
+- Package manager: `pnpm`.
 
 ## Estructura orientativa
 
@@ -41,6 +42,16 @@ No convertir Zustand en cache de API.
 ## Axios
 
 Centralizar configuración común de Axios cuando el proyecto lo requiera. Evitar múltiples clientes equivalentes.
+
+Usar el cliente canónico de `docs/toolkit.md` (baseURL desde el origin actual + interceptor de token).
+
+## Logging
+
+Todo log pasa por `logger` (`docs/toolkit.md`). No usar `console` directo. `debug` en desarrollo; la lógica de negocio usa niveles según gravedad.
+
+## Theming
+
+El tema es centralizado (`docs/theming.md`): fuente de verdad en `theme.ts`, estado en Zustand + Provider + storage, tokens mapeados a Tailwind. Los componentes usan tokens, no colores hardcodeados.
 
 ## UI
 

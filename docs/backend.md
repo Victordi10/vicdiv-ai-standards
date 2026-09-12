@@ -78,3 +78,14 @@ GraphQL no es obligatorio. REST es completamente válido.
 Deben ser delgados.
 
 No colocar lógica de negocio, queries complejas o acceso directo a base de datos.
+
+## Respuestas HTTP
+
+En Next.js, responder únicamente con `successResponse` y `errorResponse` (`docs/toolkit.md`). No construir `NextResponse.json` a mano en cada ruta.
+
+## Manejo de errores
+
+- Usar `async/await` y `try/catch` siempre. No encadenar `.then/.catch`.
+- Toda operación que pueda fallar va en `try/catch`.
+- En `catch`: registrar con `logger.error` y manejar el error (devolver `errorResponse` o rethrow). No tragarse errores.
+- La lógica de negocio avisa con `logger` según gravedad (`info`/`warn`/`error`); `debug` en desarrollo.

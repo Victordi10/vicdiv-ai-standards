@@ -44,7 +44,7 @@ model/schema
 8. Mantener lógica de negocio en service.
 9. Mantener DB en repository.
 10. Revisar autenticación/autorización.
-11. Revisar manejo de errores.
+11. Revisar manejo de errores (usar `successResponse`/`errorResponse` y `logger`, ver `docs/toolkit.md`).
 12. Revisar performance de la query.
 13. Añadir tests pertinentes.
 14. Actualizar documentación del contrato cuando corresponda.

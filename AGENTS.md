@@ -31,7 +31,7 @@ Las reglas específicas están en `docs/` y los procedimientos repetibles en `sk
 - **Estilos Web:** Tailwind CSS
 - **Estilos Mobile:** [MIXTO / TAILWIND / STYLE OBJECTS / OTRO]
 - **Testing:** Jest + tests unitarios/integración; E2E cuando corresponda
-- **Package manager:** [PNPM / NPM / YARN / BUN]
+- **Package manager:** pnpm (web) / npm (mobile)
 - **Node:** [VERSIÓN]
 - **Otros:** [INFORMACIÓN RELEVANTE]
 
@@ -457,6 +457,8 @@ Para decisiones que puedan afectar arquitectura, datos, seguridad, compatibilida
 - Código: `docs/coding-standards.md`
 - Testing: `docs/testing.md`
 - Git: `docs/git-standards.md`
+- Toolkit: `docs/toolkit.md`
+- Theming: `docs/theming.md`
 
 Skills:
 
@@ -466,3 +468,4 @@ Skills:
 - React component: `skills/create-react-component/SKILL.md`
 - DB: `skills/db-connect/SKILL.md`
 - Code review: `skills/review-code/SKILL.md`
+- Setup de proyecto: `skills/setup-project/SKILL.md`

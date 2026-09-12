@@ -40,6 +40,19 @@ Evitar `any` salvo casos justificados.
 
 Validar en las fronteras del sistema. En Next.js usar Zod. En NestJS usar DTOs y validación apropiada.
 
+## Asincronía y errores
+
+- Usar `async/await` siempre. No encadenar `.then/.catch` salvo necesidad puntual.
+- Operaciones que puedan fallar van en `try/catch`.
+- Registrar errores con `logger` (`docs/toolkit.md`); nunca tragarse un error sin registrarlo y manejar/rethrow.
+- No usar `console` directo.
+
+## Herramientas
+
+- Package manager: `pnpm` en web; `npm` en mobile.
+- Estilos: Tailwind por defecto.
+- Tema: usar el theme centralizado (`docs/theming.md`), nunca colores hardcodeados.
+
 ## Comentarios
 
 Comentar el porqué, no el qué obvio.

@@ -12,12 +12,14 @@ Encontrar problemas reales, no realizar críticas estéticas sin impacto.
 4. Uso de TypeScript en vez de JavaScript (sin archivos `.js`/`.jsx` con lógica de aplicación).
 5. Estado.
 6. Validación.
-7. DB.
-8. Seguridad.
-9. Manejo de errores.
-10. Performance.
-11. Tests.
-12. Documentación relevante.
+7. Manejo de errores (`try/catch`, `async/await`, sin errores tragados).
+8. Toolkit (uso de `logger`, `successResponse`/`errorResponse`, cliente `api`).
+9. Theming (tokens, no colores hardcodeados; tema centralizado).
+10. DB.
+11. Seguridad.
+12. Performance.
+13. Tests.
+14. Documentación relevante.
 
 ## Prioridad
 
