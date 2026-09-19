@@ -9,6 +9,7 @@
 - Zustand para estado global.
 - TanStack Query para server state.
 - Axios para HTTP cuando corresponda.
+- `vicdev-ui-lib` para componentes UI reutilizables (ver `docs/ui-library.md`).
 - Package manager: `pnpm`.
 
 ## Estructura orientativa

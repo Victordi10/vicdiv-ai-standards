@@ -4,6 +4,7 @@
 
 Buscar primero:
 
+- componentes disponibles en `vicdev-ui-lib` (ver `docs/ui-library.md`);
 - `components/ui/`;
 - componentes del dominio;
 - hooks;
@@ -11,6 +12,12 @@ Buscar primero:
 - providers;
 - `lib`;
 - librerías ya instaladas.
+
+## Librería de componentes
+
+Usar `vicdev-ui-lib` como fuente de componentes UI reutilizables. Instalarla, montar `VicdevUIProvider` en los providers globales y conectarla con el store de theme (ver `docs/ui-library.md`).
+
+Reutilizar componentes de la librería antes de crear alternativas propias.
 
 ## Componentes propios
 

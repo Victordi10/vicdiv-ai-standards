@@ -3,7 +3,7 @@
 ## Procedimiento
 
 1. Buscar componente existente.
-2. Buscar componente UI equivalente.
+2. Buscar componente equivalente en `vicdev-ui-lib` (ver `docs/ui-library.md`).
 3. Revisar dominio.
 4. Revisar hooks, stores y `lib`.
 5. Revisar librerías existentes.
@@ -15,5 +15,8 @@
 11. Preferir librería madura para complejidad alta cuando tenga sentido.
 12. Añadir tests relevantes.
 13. Validar lint/typecheck.
+
+Si el componente ya existe en `vicdev-ui-lib`, usarlo o extenderlo en lugar de crear una alternativa.
+Los componentes de la librería usan tokens del tema (`bg-primary`, `text-muted-foreground`), nunca colores hardcodeados.
 
 En Next.js, preferir Server Components y usar `"use client"` solo cuando sea necesario.

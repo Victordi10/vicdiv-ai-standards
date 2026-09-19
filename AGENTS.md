@@ -28,6 +28,7 @@ Las reglas específicas están en `docs/` y los procedimientos repetibles en `sk
 - **Estado global:** Zustand
 - **Server state:** TanStack Query
 - **Cliente HTTP:** Axios
+- **UI Library:** vicdev-ui-lib (React web)
 - **Estilos Web:** Tailwind CSS
 - **Estilos Mobile:** [MIXTO / TAILWIND / STYLE OBJECTS / OTRO]
 - **Testing:** Jest + tests unitarios/integración; E2E cuando corresponda
@@ -132,9 +133,10 @@ Cuando el proyecto utilice Next.js:
 - usar Zustand para estado global;
 - usar TanStack Query para server state;
 - usar Axios para HTTP cuando corresponda;
+- usar `vicdev-ui-lib` para los componentes UI reutilizables;
 - organizar componentes por dominio;
-- usar `components/ui/` para UI genérica;
-- mantener Root Layout y providers globales centralizados.
+- usar `components/ui/` para UI genérica específica del proyecto;
+- mantener Root Layout y providers globales centralizados (incluido `VicdevUIProvider`).
 
 No utilizar Zustand como sustituto de TanStack Query para datos cuya fuente de verdad sea el servidor.
 
@@ -183,16 +185,19 @@ Consultar `docs/state-management.md`.
 Antes de crear un componente nuevo:
 
 1. buscar uno existente;
-2. revisar `components/ui/`;
-3. revisar componentes del dominio;
-4. revisar hooks, `lib` y utilidades;
-5. solo después crear una abstracción nueva.
+2. revisar componentes disponibles en `vicdev-ui-lib` (ver `docs/ui-library.md`);
+3. revisar `components/ui/`;
+4. revisar componentes del dominio;
+5. revisar hooks, `lib` y utilidades;
+6. solo después crear una abstracción nueva.
 
-Los componentes básicos pueden ser propios para mantener consistencia.
+Los componentes básicos pueden ser propios para mantener consistencia, pero primero se busca en `vicdev-ui-lib`.
 
 No es necesario reinventar componentes complejos cuando una librería madura aporta valor real, por ejemplo tablas avanzadas, editores, calendarios o visualizaciones.
 
 Consultar `docs/component-standards.md`.
+
+Consultar `docs/ui-library.md` para instalación, provider y uso de `vicdev-ui-lib`.
 
 ---
 
@@ -455,6 +460,7 @@ Para decisiones que puedan afectar arquitectura, datos, seguridad, compatibilida
 - DB: `docs/database.md`
 - Componentes: `docs/component-standards.md`
 - Código: `docs/coding-standards.md`
+- UI Library: `docs/ui-library.md`
 - Testing: `docs/testing.md`
 - Git: `docs/git-standards.md`
 - Toolkit: `docs/toolkit.md`

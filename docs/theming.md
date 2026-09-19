@@ -45,6 +45,14 @@ Comportamiento:
 - En web, sincroniza `data-theme` (o `class`) en `document.documentElement` y sobre `html`.
 - En mobile, expone `colors` vía contexto/hook (`useTheme()`).
 
+### Integración con la UI library
+
+- `vicdev-ui-lib` lee las variables CSS del host: los componentes no reciben el tema por props.
+- Opcionalmente `VicdevUIProvider`/`ThemeProvider` de la librería inyecta el CSS desde `createTheme({ brand, light, dark })`.
+- La librería alterna modo claro/oscuro con clases `.light`/`.dark` (no `data-theme`):
+  `document.documentElement.classList.toggle('dark', isDark)`.
+- Con `next-themes`, usar `attribute="class"`. Detalles: `docs/ui-library.md`.
+
 ### Web (Next.js)
 
 - Aplicar el atributo de tema al `documentElement` antes del primer render para evitar flashes.
