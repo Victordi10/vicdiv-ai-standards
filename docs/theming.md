@@ -42,16 +42,26 @@ Comportamiento:
 ### Provider
 
 - `ThemeProvider` consume el store, resuelve el tema y expone `colors` a toda la app.
-- En web, sincroniza `data-theme` (o `class`) en `document.documentElement` y sobre `html`.
+- En web, con `vicdev-ui-lib`, sincroniza la clase `.dark` en `document.documentElement`. Un host sin la librería puede usar `data-theme`.
 - En mobile, expone `colors` vía contexto/hook (`useTheme()`).
 
 ### Integración con la UI library
 
+Versión publicada: `vicdev-ui-lib@1.4.0`. Detalle de instalación, presets y Tailwind: `docs/ui-library.md`.
+
 - `vicdev-ui-lib` lee las variables CSS del host: los componentes no reciben el tema por props.
-- Opcionalmente `VicdevUIProvider`/`ThemeProvider` de la librería inyecta el CSS desde `createTheme({ brand, light, dark })`.
-- La librería alterna modo claro/oscuro con clases `.light`/`.dark` (no `data-theme`):
-  `document.documentElement.classList.toggle('dark', isDark)`.
-- Con `next-themes`, usar `attribute="class"`. Detalles: `docs/ui-library.md`.
+- El host importa la entrada de la librería para que Tailwind v4 genere las clases del paquete:
+
+```css
+@import "tailwindcss";
+@import "vicdev-ui-lib/tailwind.css";
+```
+
+- El modo de la librería es la clase `.dark` en `documentElement` (también emite `:root.light, .light`). No usa `data-theme`.
+- Opcionalmente `VicdevUIProvider`/`ThemeProvider` de la librería inyecta el CSS desde `createTheme`.
+- Un proyecto puede partir de un preset (`createTheme(presets.automerco)`, `presets.jorge`, `presets.darkfocus`, `presets.lino`, …) en lugar de copiar hexadecimales. `presetModeCssVars(preset, 'dark')` devuelve las variables del modo activo.
+- Cuando la app define su propia marca, `src/constants/theme/theme.ts` sigue siendo la fuente de verdad. El preset no la reemplaza.
+- Con `next-themes`, usar `attribute="class"`.
 
 ### Web (Next.js)
 
@@ -68,34 +78,36 @@ Los tokens se exponen a Tailwind desde la fuente de verdad.
 
 ### Web — Next.js + Tailwind v4 (CSS-first)
 
-- Variables CSS en `globals.css` divididas en bloques `:root` (claro) y `[data-theme="dark"]` (oscuro), más un fallback `@media (prefers-color-scheme: dark)`.
-- Bloque `@theme` mapea las variables a utilidades Tailwind:
+Con `vicdev-ui-lib`, el host importa `vicdev-ui-lib/tailwind.css`. Esa entrada ya trae `@theme inline`, la variante `.dark` y el escaneo del bundle. El modo oscuro se aplica con la clase `.dark`, no con `data-theme`.
 
 ```css
 @import "tailwindcss";
+@import "vicdev-ui-lib/tailwind.css";
 
 :root {
   --background: #ffffff;
   --foreground: #1c1717;
   --card: #fafafa;
-  /* ... */
+  /* ... o las variables de presetModeCssVars(preset, 'light') */
 }
 
-[data-theme="dark"] {
-  --background: #07080d;
-  --foreground: #f8fafc;
-  --card: #10131a;
-  /* ... */
-}
-
-@theme {
-  --color-background: var(--background);
-  --color-card: var(--card);
-  /* ... */
+.dark {
+  --background: #0b0909;
+  --foreground: #faf9f9;
+  --card: #161212;
+  /* ... o las variables de presetModeCssVars(preset, 'dark') */
 }
 ```
 
+```tsx
+document.documentElement.classList.toggle('dark', isDark);
+```
+
+`pnpm exec vicdev-setup-tailwind` inserta esos dos `@import` en el CSS global del host. No instala paquetes.
+
 Uso en componentes: `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `border-border`, `ring-ring`, `sidebar-*`.
+
+Un host que no use la librería puede seguir con `[data-theme="dark"]` y su propio `@theme`. Si conviven ambos, la librería solo reacciona a `.dark`.
 
 ### Mobile — React Native / NativeWind
 

@@ -6,6 +6,8 @@ Los componentes UI reutilizables vienen de la librería `vicdev-ui-lib` en lugar
 
 `vicdev-ui-lib` es una biblioteca de componentes React con sistema de tema centralizado por variables CSS. Soporta Tailwind CSS v3 y v4.
 
+Versión publicada en npm: **`vicdev-ui-lib@1.4.0`**. Incluye la entrada CSS `vicdev-ui-lib/tailwind.css`, el subpath de runtime `vicdev-ui-lib/theme` y los presets de marca.
+
 Componentes disponibles:
 
 | Grupo | Componentes |
@@ -54,13 +56,11 @@ pnpm add primereact primeicons   # solo si se usa DataTable
 `VicdevUIProvider` centraliza tema, z-index, animaciones y defaults de componentes. `ThemeProvider` es opcional e inyecta el CSS del tema (`injectCSS`).
 
 ```tsx
-import { VicdevUIProvider, createTheme } from 'vicdev-ui-lib';
+import { VicdevUIProvider, createTheme, presets } from 'vicdev-ui-lib';
 
-const theme = createTheme({
-  primary: '#...',
-  light: { background: '#...', foreground: '#...' },
-  dark: { background: '#...', foreground: '#...' },
-});
+const theme = createTheme(presets.lino);
+// o colores propios:
+// createTheme({ primary: '#...', light: { background: '#...' }, dark: { background: '#...' } });
 
 <VicdevUIProvider
   config={{
@@ -93,22 +93,67 @@ document.documentElement.classList.toggle('dark', isDark);
 
 Con `next-themes`, usar `attribute="class"` para alternar `.dark` correctamente.
 
+## Presets
+
+Los presets son argumentos de `createTheme`: colores de claro en la raíz, más `light` y `dark`. No hace falta copiar hexadecimales.
+
+```tsx
+import { createTheme, presets, presetModeCssVars } from 'vicdev-ui-lib';
+
+const theme = createTheme(presets.automerco);
+const darkVars = presetModeCssVars(presets.automerco, 'dark');
+```
+
+`presetModeCssVars(preset, mode)` devuelve las variables CSS del modo (`--background`, `--primary`, …) para un `style` inline o un bloque `:root` / `.dark`.
+
+| Clave | Uso |
+| --- | --- |
+| `mineral`, `ocean`, `plum` | Laboratorio |
+| `monochrome` | Gris neutro, sin color de marca |
+| `vino` | Burdeos sobre papel humo y negro |
+| `piedra`, `niebla`, `lino` | Plantillas neutras (gris cálido, gris frío, papel cálido) |
+| `automerco` | Naranja `#F84715` y amarillo `#F4BF3B`, tomados de Automerco |
+| `jorge` | Púrpura `#150D3E`, amarillo `#FCC50D` y naranja `#ED4C21` |
+| `darkfocus` | Rojo `#ee2b2b` / `#f04242`, tomado de Darkfocus |
+
+Viva no tiene preset: el repositorio consultado no incluye paleta de interfaz.
+
+Si el proyecto define su propia marca, `src/constants/theme/theme.ts` sigue siendo la fuente de verdad. El preset solo es el punto de partida.
+
 ## Tailwind
 
 ### Tailwind v4 (CSS-first)
 
-Variables CSS en `globals.css` + bloque `@theme inline` que mapea las variables a utilidades. El ejemplo completo de la librería está en `tailwind.v4.css.example`.
+Variables CSS en `globals.css` e import de la entrada que publica la librería. Esa entrada escanea el bundle, mapea los tokens y trae el CSS de DataTable:
+
+```css
+@import "tailwindcss";
+@import "vicdev-ui-lib/tailwind.css";
+```
+
+Sin ese import, Tailwind v4 no escanea `node_modules` y las clases del paquete (`bg-card`, `border-sidebar-border`, `bg-linear-to-r`, …) no se generan. El `@source` manual al bundle queda solo como respaldo si el host ya define su propio `@theme inline`.
+
+En un host ya instalado, el binario deja esos imports listos. No instala dependencias. Si el proyecto sigue en Tailwind v3, no crea `tailwind.config.js` y remite a `getTailwindConfig()`. Dentro de `vicdev-ui-lib` el comando se detiene.
+
+```bash
+pnpm exec vicdev-setup-tailwind
+```
 
 ### Tailwind v3
 
 La librería expone `getTailwindConfig()`:
+
+`vicdev-ui-lib/theme` resuelve a JavaScript en runtime (`getTailwindConfig`). En v3 hay que listar el bundle en `content`:
 
 ```js
 // tailwind.config.js
 const { getTailwindConfig } = require('vicdev-ui-lib/theme');
 
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+    './node_modules/vicdev-ui-lib/dist/vicdev-ui-lib.es.js',
+  ],
   theme: { extend: getTailwindConfig() },
 };
 ```
