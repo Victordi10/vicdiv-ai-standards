@@ -11,8 +11,12 @@ Crear una feature respetando arquitectura y reutilización.
 3. Leer documentación relevante.
 4. Buscar feature similar.
 5. Buscar componentes, hooks, stores, services, repositories y utilidades reutilizables.
-6. Definir la estructura mínima necesaria.
-7. Implementar por dominio.
+6. Definir la estructura mínima dentro de las carpetas fijas (`docs/architecture.md`):
+   - web UI: `src/components/<dominio>/` y la página en `src/app/.../page.tsx`;
+   - web API: `src/app/api/<dominio>/` (`route.ts`, controller, service, `dto/`, `entities/`, `interfaces/`);
+   - mobile: `src/screens/<dominio>/`, `src/stack/<dominio>/`, `src/components/<dominio>/`;
+   - Nest: `src/<dominio>/`.
+7. Implementar por dominio en esas rutas. No crear `features/` ni módulos en la raíz del repo.
 8. Separar responsabilidades.
 9. Reutilizar antes de crear.
 10. Refactorizar únicamente lo directamente relacionado.
@@ -24,6 +28,6 @@ Crear una feature respetando arquitectura y reutilización.
 
 - Crear carpetas vacías por plantilla.
 - Duplicar lógica.
-- Introducir una arquitectura paralela.
+- Introducir una arquitectura paralela (`features/`, `src/api/` fuera de `app/api/`, UI en `app/_components`, `src/<dominio>/` al lado de `app/` en un proyecto Next.js).
 - Introducir librerías sin necesidad.
 - Eliminar comportamiento sin autorización.

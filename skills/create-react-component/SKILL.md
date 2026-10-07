@@ -9,7 +9,7 @@
 5. Revisar librerías existentes.
 6. Determinar si es genérico o específico del dominio.
 7. Colocarlo en `components/ui` si es transversal.
-8. Colocarlo en el dominio si es específico.
+8. Colocarlo en `components/<dominio>/` si es específico. En mobile, la pantalla va en `screens/<dominio>/`.
 9. Mantener responsabilidad clara.
 10. Evitar props condicionales excesivas.
 11. Preferir librería madura para complejidad alta cuando tenga sentido.

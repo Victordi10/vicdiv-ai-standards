@@ -2,21 +2,24 @@
 
 ## Next.js
 
+Crear el módulo en `src/app/api/<dominio>/`. No crear `src/<dominio>/` (eso es Nest), ni `src/api/`, ni `features/`.
+
 ```text
-route.ts
-↓
-controller
-↓
-DTO/Zod
-↓
-service
-↓
-repository
-↓
-model
+src/app/api/clients/
+├── route.ts
+├── client.controller.ts
+├── client.service.ts
+├── client.repository.ts
+├── dto/
+├── entities/
+└── interfaces/
 ```
 
+`route.ts` llama al controller y responde con `successResponse` / `errorResponse`. El front no importa service ni repository.
+
 ## NestJS
+
+Crear el módulo en `src/<dominio>/` (`module`, `controller`, `service`, `dto/`, `entities/`, `interfaces/`). `resolver.ts` solo si ese backend ya usa GraphQL.
 
 ```text
 request

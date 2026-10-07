@@ -20,7 +20,7 @@ Las reglas específicas están en `docs/` y los procedimientos repetibles en `sk
 - **Descripción:** [DESCRIPCIÓN BREVE]
 - **Tipo:** [WEB / MOBILE / API / SAAS / MONOREPO / OTRO]
 - **Arquitectura:** [MONOLITO / MONOLITO MODULAR / MONOREPO / FRONTEND + BACKEND / DISTRIBUIDA / MICROSERVICIOS]
-- **Frontend:** [NEXT.JS / REACT / REACT NATIVE / EXPO / OTRO]
+- **Frontend:** Next.js 16 (Turbopack)
 - **Backend:** [NEXT.JS API / NESTJS / OTRO]
 - **Base de datos:** [MONGODB / MYSQL / OTRA]
 - **ODM/ORM:** [MONGOOSE / PRISMA / OTRO]
@@ -39,8 +39,8 @@ Las reglas específicas están en `docs/` y los procedimientos repetibles en `sk
 ## Comandos
 
 - Install: `[COMANDO]`
-- Dev: `[COMANDO]`
-- Build: `[COMANDO]`
+- Dev: `[COMANDO]` (web: `pnpm dev` → `next dev` con Turbopack)
+- Build: `[COMANDO]` (web: `pnpm build` → `next build` con Turbopack)
 - Test: `[COMANDO]`
 - Test integration: `[COMANDO]`
 - Lint: `[COMANDO]`
@@ -89,11 +89,19 @@ Si una tarea parece requerir una eliminación, explicar qué se eliminaría ante
 
 # 4. Arquitectura
 
-La arquitectura estándar es **modular / feature-based con capas internas pragmáticas**.
+La arquitectura estándar es **modular por dominio**, con capas internas solo cuando aportan una responsabilidad real.
 
-No imponer Clean Architecture o Hexagonal Architecture de manera dogmática.
+No imponer Clean Architecture o Hexagonal Architecture. No usar una carpeta `features/`.
 
-La organización debe responder al dominio y a las responsabilidades reales.
+La organización responde al dominio, dentro de carpetas fijas:
+
+- web: `app/` (páginas y `app/api/<dominio>/`), `components/<dominio>/`, `hooks/`, `lib/`, `providers/`, `stores/`;
+- Nest: `src/<dominio>/` con module, controller, service, `dto/`, `entities/`, `interfaces/`;
+- mobile: `screens/`, `stack/`, `components/`, `navigation/`, `stores/`, `providers/`.
+
+En Next.js no crear `src/<dominio>/` al lado de `app/` (`src/client/`, `src/agent/`, `src/shop/`, `src/onboarding/`). Esa forma es solo de NestJS. En Next el módulo de API va en `src/app/api/<dominio>/` y la UI en `src/components/<dominio>/`.
+
+No crear dominios en la raíz del repo, `src/api/` aparte de `app/api/`, UI en `app/_components`, providers dentro de `components/` ni la carpeta `store/` en singular.
 
 Arquitecturas soportadas:
 
@@ -105,7 +113,7 @@ Arquitecturas soportadas:
 - arquitectura distribuida;
 - microservicios.
 
-La filosofía se mantiene aunque cambie la estructura física.
+La separación de capas se mantiene. Las carpetas no: web, Nest y mobile tienen árboles distintos y no se mezclan.
 
 Si el repositorio contiene varios servicios o aplicaciones, cada unidad puede tener su propio `AGENTS.md` con reglas más específicas. Las reglas locales complementan las globales.
 
@@ -126,6 +134,7 @@ Consultar `docs/architecture.md`.
 
 Cuando el proyecto utilice Next.js:
 
+- usar Next.js 16 con **Turbopack** (`next dev` / `next build` sin flag);
 - usar App Router;
 - preferir Server Components;
 - usar `"use client"` solo cuando sea necesario;
@@ -134,9 +143,11 @@ Cuando el proyecto utilice Next.js:
 - usar TanStack Query para server state;
 - usar Axios para HTTP cuando corresponda;
 - usar `vicdev-ui-lib` para los componentes UI reutilizables;
-- organizar componentes por dominio;
-- usar `components/ui/` para UI genérica específica del proyecto;
-- mantener Root Layout y providers globales centralizados (incluido `VicdevUIProvider`).
+- dejar `app/` para páginas, layouts y `app/api/<dominio>/`;
+- poner la UI de cada dominio en `components/<dominio>/`;
+- usar `components/ui/` para UI genérica que no está en `vicdev-ui-lib`;
+- poner hooks de datos en `hooks/` y el cliente HTTP en `lib/`;
+- mantener Root Layout y providers globales en `providers/` (incluido `VicdevUIProvider`).
 
 No utilizar Zustand como sustituto de TanStack Query para datos cuya fuente de verdad sea el servidor.
 
@@ -220,34 +231,32 @@ No colocar lógica específica de un dominio en el Root Layout.
 
 # 9. Backend con Next.js
 
-Cuando Next.js sea suficiente:
+Cuando Next.js sea suficiente, el módulo vive en `src/app/api/<dominio>/`, con la forma de un módulo Nest:
 
 ```text
-route
-  ↓
-controller
-  ↓
-DTO / validation
-  ↓
-service
-  ↓
-repository
-  ↓
-model
-  ↓
-database
+src/app/api/clients/
+├── route.ts
+├── client.controller.ts
+├── client.service.ts
+├── client.repository.ts
+├── dto/
+├── entities/
+└── interfaces/
 ```
+
+`route.ts` equivale al resolver: solo HTTP. No se crea `module.ts`.
 
 Reglas:
 
-- `route.ts` integra HTTP y delega;
+- `route.ts` llama al controller y responde con `successResponse` / `errorResponse`;
 - controller delgado;
 - DTO/Zod valida entrada;
 - service contiene lógica de negocio;
-- repository es la frontera de acceso a DB;
-- model representa persistencia;
+- repository es la frontera de acceso a DB y solo existe si hay persistencia;
+- el front no importa service ni repository; si necesita un tipo, importa `dto` o `interfaces`;
 - no acceder directamente a Mongoose desde controller/service si existe repository;
-- no colocar lógica de negocio en `route.ts`.
+- no colocar lógica de negocio en `route.ts`;
+- no crear `src/api/` aparte de `src/app/api/`.
 
 Consultar `docs/backend.md`.
 
@@ -328,12 +337,22 @@ Estándar:
 
 - React Native;
 - Expo;
-- Zustand;
-- organización por dominio;
-- screens por dominio;
-- stacks por dominio;
-- providers en `providers/`;
-- componentes reutilizables.
+- Zustand en `stores/<dominio>/`;
+- package manager: `npm`;
+
+```text
+src/
+├── screens/<dominio>/
+├── stack/<dominio>/
+├── components/<dominio>/
+├── navigation/
+├── apiconsumer/graphql/domains/
+├── stores/<dominio>/
+├── providers/
+├── hooks/
+├── lib/
+└── theme/
+```
 
 Tailwind puede ser mixto o no utilizarse. Priorizar claridad y rendimiento. Los estilos nativos y `gap` son válidos cuando resulten adecuados.
 

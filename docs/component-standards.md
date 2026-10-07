@@ -6,7 +6,7 @@ Buscar primero:
 
 - componentes disponibles en `vicdev-ui-lib` (ver `docs/ui-library.md`);
 - `components/ui/`;
-- componentes del dominio;
+- `components/<dominio>/`;
 - hooks;
 - stores;
 - providers;

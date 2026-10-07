@@ -6,7 +6,7 @@ Encontrar problemas reales, no realizar críticas estéticas sin impacto.
 
 ## Revisión
 
-1. Arquitectura.
+1. Arquitectura (web: UI en `components/<dominio>/` y API en `app/api/<dominio>/`; sin `features/`, sin `src/<dominio>/` al lado de `app/`, sin `store/` singular).
 2. Separación de responsabilidades.
 3. Reutilización/duplicación (incluye usar componentes de `vicdev-ui-lib` en vez de reimplementarlos).
 4. Uso de TypeScript en vez de JavaScript (sin archivos `.js`/`.jsx` con lógica de aplicación).

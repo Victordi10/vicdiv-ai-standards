@@ -2,7 +2,28 @@
 
 ## Next.js API
 
-Cuando Next.js incluya backend:
+El backend de Next copia la forma de un módulo Nest y vive junto a la ruta. El equivalente de `src/client/` en Nest es `src/app/api/clients/`. En un proyecto Next.js no se crea `src/client/`, `src/agent/` ni `src/shop/`.
+
+```text
+src/app/api/clients/
+├── route.ts
+├── client.controller.ts
+├── client.service.ts
+├── client.repository.ts
+├── dto/
+├── entities/
+└── interfaces/
+```
+
+| Nest | Next |
+|---|---|
+| `client.module.ts` | no se crea |
+| `client.controller.ts` | `client.controller.ts` |
+| `client.resolver.ts` | `route.ts` (solo HTTP) |
+| `client.service.ts` | `client.service.ts` |
+| `dto/`, `entities/`, `interfaces/` | las mismas carpetas, en el mismo módulo |
+
+Flujo:
 
 ```text
 route.ts
@@ -17,6 +38,15 @@ repository
 ↓
 model
 ```
+
+- `route.ts` llama al controller y responde con `successResponse` / `errorResponse`.
+- El controller no tiene lógica de negocio.
+- El service sí.
+- El repository habla con la base. `repository.ts` solo se crea si hay persistencia.
+- El front no importa el service ni el repository.
+- Si una pantalla necesita un tipo, importa `dto` o `interfaces` de ese módulo. Esos archivos no importan Mongoose ni secretos.
+- No crear `src/api/` aparte de `src/app/api/`.
+- No crear carpeta `modules/` ni `features/` para el backend.
 
 ### Route
 
@@ -43,15 +73,16 @@ Aísla el acceso a persistencia.
 Cuando el backend es independiente y sirve múltiples frontends o el dominio justifica un backend dedicado:
 
 ```text
-module/
+src/<dominio>/
+├── <dominio>.module.ts
+├── <dominio>.controller.ts
+├── <dominio>.service.ts
 ├── dto/
-├── entities/ o schemas/
-├── enums/
-├── repositories/
-├── controller.ts
-├── module.ts
-└── service.ts
+├── entities/
+└── interfaces/
 ```
+
+`resolver.ts` solo si el módulo ya usa GraphQL. GraphQL no se añade a un backend Next.
 
 Flujo conceptual:
 

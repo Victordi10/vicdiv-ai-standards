@@ -93,6 +93,27 @@ document.documentElement.classList.toggle('dark', isDark);
 
 Con `next-themes`, usar `attribute="class"` para alternar `.dark` correctamente.
 
+## Next.js (Turbopack)
+
+Con Next.js 16 + Turbopack, `vicdev-ui-lib@1.4.0` y Tailwind v4 son compatibles sin configuración extra de bundler:
+
+- No añadir la clave `webpack` en `next.config.ts` para resolver la librería.
+- Si el paquete llega como fuente ESM (registry o `file:`), declararlo en `transpilePackages`:
+
+```ts
+// next.config.ts
+const nextConfig = {
+  transpilePackages: ['vicdev-ui-lib'],
+};
+
+export default nextConfig;
+```
+
+- Los scripts son `next dev` y `next build` (Turbopack es el default; no se pasa `--turbopack`).
+- El CSS se integra con `@import "tailwindcss"` y `@import "vicdev-ui-lib/tailwind.css"` vía PostCSS, compatible con Turbopack.
+
+Si se instala por `file:../vicdev-ui-react-lib`, el paquete también entra en `transpilePackages`.
+
 ## Presets
 
 Los presets son argumentos de `createTheme`: colores de claro en la raíz, más `light` y `dark`. No hace falta copiar hexadecimales.
