@@ -7,7 +7,7 @@ Encontrar problemas reales, no realizar críticas estéticas sin impacto.
 ## Revisión
 
 1. Arquitectura (web: UI en `components/<dominio>/` y API en `app/api/<dominio>/`; sin `features/`, sin `src/<dominio>/` al lado de `app/`, sin `store/` singular).
-2. Separación de responsabilidades.
+2. Separación de responsabilidades (SRP). Un archivo que concentra varias responsabilidades, o que llega a miles de líneas (God Object), es hallazgo de mantenibilidad (prioridad media). Partir solo lo que la tarea modifica, por responsabilidad. No pedir un split global de archivos que el cambio no toca.
 3. Reutilización/duplicación (incluye usar componentes de `vicdev-ui-lib` en vez de reimplementarlos).
 4. Uso de TypeScript en vez de JavaScript (sin archivos `.js`/`.jsx` con lógica de aplicación).
 5. Estado.

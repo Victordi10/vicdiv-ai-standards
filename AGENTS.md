@@ -55,7 +55,7 @@ Las reglas específicas están en `docs/` y los procedimientos repetibles en `sk
 3. Extender una abstracción existente antes de crear otra equivalente.
 4. Refactorizar código directamente relacionado con la tarea cuando sea necesario para alinearlo con el estándar.
 5. No hacer refactors masivos no relacionados con la tarea.
-6. Mantener las responsabilidades separadas.
+6. Mantener las responsabilidades separadas: una clase, función, componente o service hace una sola cosa (SRP). Una clase rara vez supera ~200 líneas; un archivo de miles de líneas es un God Object y no se extiende. Superar esa métrica no autoriza un refactor masivo ajeno a la tarea.
 7. La lógica de negocio no debe vivir en componentes UI, routes o controllers.
 8. Evitar duplicación de lógica y reglas.
 9. Preferir composición y reutilización antes que copiar y pegar.
