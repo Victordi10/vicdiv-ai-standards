@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Deploy one app on this server.
+#
+#   deploy <app>            fast-forward to origin/<branch>, install, build, reload, health-check
+#   deploy <app> --dry-run  show what would be deployed and run the checks, change nothing
+#   deploy <app> --force    redeploy even when the server is already at origin/<branch>
+#   deploy --list           list configured apps
+#
+# Each app is described by ~/deploy/apps/<app>.conf. If the build, the reload or the
+# health check fails, the app is rolled back to the commit it was running before.
+set -euo pipefail
+
+CONF_DIR=$HOME/deploy/apps
+LOG=$HOME/logs/deploy.log
+mkdir -p "$HOME/logs"
+
+if [ "${1:-}" = "--list" ]; then
+  for f in "$CONF_DIR"/*.conf; do basename "$f" .conf; done
+  exit 0
+fi
+
+APP=${1:?usage: deploy <app> [--dry-run|--force] | deploy --list}
+MODE=${2:-}
+case "$MODE" in ""|--dry-run|--force) ;; *) echo "unknown option: $MODE"; exit 2 ;; esac
+
+CONF=$CONF_DIR/$APP.conf
+[ -f "$CONF" ] || { echo "unknown app '$APP'. Configured: $(ls "$CONF_DIR" | sed 's/\.conf$//' | tr '\n' ' ')"; exit 2; }
+# shellcheck source=/dev/null
+. "$CONF"
+: "${DIR:?DIR missing in $CONF}" "${BRANCH:?}" "${PM:?}" "${PM2_NAME:?}" "${HEALTH_URL:?}"
+RELOAD=${RELOAD:-restart}            # restart | ecosystem
+BUILD_MEMORY_MB=${BUILD_MEMORY_MB:-1024}
+HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-60} # seconds
+POST_RELOAD=${POST_RELOAD:-}         # optional command run after a successful reload
+
+export NVM_DIR=$HOME/.nvm
+# shellcheck source=/dev/null
+. "$NVM_DIR/nvm.sh" >/dev/null 2>&1
+
+exec 9>"$HOME/deploy/.lock"
+flock -n 9 || { echo "another deploy is running"; exit 3; }
+
+say() { echo "[$APP] $*"; }
+log() { echo "$(date -Is) $APP $*" >> "$LOG"; }
+fail() { say "ERROR: $*"; log "FAILED $*"; exit 1; }
+
+case "$PM" in
+  pnpm) PMX="corepack pnpm"; export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 ;;
+  npm)  PMX="npm" ;;
+  *)    fail "PM must be npm or pnpm" ;;
+esac
+
+install_deps() {
+  if [ "$PM" = pnpm ]; then $PMX install --frozen-lockfile; else npm ci --no-audit --no-fund; fi
+}
+
+lock_changed() { # from to
+  git diff --name-only "$1" "$2" | grep -qE '(^|/)(package\.json|package-lock\.json|pnpm-lock\.yaml)$'
+}
+
+build() { NODE_OPTIONS=--max-old-space-size=$BUILD_MEMORY_MB $PMX run build; }
+
+reload() {
+  if [ "$RELOAD" = ecosystem ]; then
+    pm2 startOrReload ecosystem.config.cjs --only "$PM2_NAME" --update-env >/dev/null
+  else
+    pm2 restart "$PM2_NAME" --update-env >/dev/null
+  fi
+}
+
+healthy() {
+  local waited=0
+  while [ "$waited" -lt "$HEALTH_TIMEOUT" ]; do
+    curl -fsS -o /dev/null -m 5 "$HEALTH_URL" 2>/dev/null && return 0
+    sleep 3; waited=$((waited + 3))
+  done
+  return 1
+}
+
+# Env vars that new code reads but that would never reach the app.
+check_env() { # from to
+  local added keys k missing=0
+  added=$(git diff "$1" "$2" -- src | grep -E '^\+' || true)
+  keys=$(printf '%s\n' "$added" \
+    | grep -oE "(process\.env\.|get(OrThrow)?(<[^>]*>)?\(['\"])[A-Z][A-Z0-9_]{2,}" \
+    | grep -oE '[A-Z][A-Z0-9_]{2,}$' | sort -u || true)
+  for k in $keys; do
+    if grep -q "ENV_KEYS" ecosystem.config.cjs 2>/dev/null && ! git show "$2:ecosystem.config.cjs" | grep -q "'$k'"; then
+      say "ERROR: new code reads $k but ecosystem.config.cjs does not pass it to the app"
+      missing=1
+    elif ! grep -qE "^$k=" .env .env.production .env.local 2>/dev/null; then
+      say "warning: new code reads $k and it is not set in .env (fine if it is optional)"
+    fi
+  done
+  return $missing
+}
+
+cd "$DIR"
+
+[ "$(git branch --show-current)" = "$BRANCH" ] \
+  || fail "server is on branch '$(git branch --show-current)', expected '$BRANCH'"
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+  git status --porcelain --untracked-files=no
+  fail "tracked files are modified on the server; commit them in the repo or discard them first"
+fi
+
+git fetch -q origin
+PREV=$(git rev-parse HEAD)
+TARGET=$(git rev-parse "origin/$BRANCH")
+
+if [ "$PREV" = "$TARGET" ] && [ "$MODE" != "--force" ]; then
+  say "already at $(git log -1 --format='%h %s')"
+  exit 0
+fi
+if ! git merge-base --is-ancestor "$PREV" "$TARGET"; then
+  git log --oneline "$TARGET..$PREV" | sed 's/^/  /'
+  fail "the server has commits that are not in origin/$BRANCH (above); merge them in GitHub first"
+fi
+
+say "$(git rev-parse --short "$PREV") -> $(git log -1 --format='%h %s' "$TARGET")"
+git log --oneline "$PREV..$TARGET" | sed 's/^/  + /'
+lock_changed "$PREV" "$TARGET" && say "dependencies changed: will install"
+check_env "$PREV" "$TARGET" || fail "fix the env whitelist before deploying"
+
+[ "$MODE" = "--dry-run" ] && { say "dry run: nothing changed"; exit 0; }
+
+rollback() {
+  say "rolling back to $(git rev-parse --short "$PREV")"
+  git reset -q --hard "$PREV"
+  if lock_changed "$TARGET" "$PREV"; then install_deps >/dev/null 2>&1 || true; fi
+  if build >/dev/null 2>&1 && reload && healthy; then
+    say "rollback OK, running $(git log -1 --format='%h %s')"
+    log "ROLLED BACK to $(git rev-parse --short "$PREV")"
+  else
+    say "ROLLBACK FAILED: check 'pm2 logs $PM2_NAME'"
+    log "ROLLBACK FAILED"
+  fi
+  exit 1
+}
+
+START=$(date +%s)
+git merge -q --ff-only "$TARGET"
+
+if lock_changed "$PREV" "$TARGET"; then
+  say "installing dependencies"
+  install_deps 2>&1 | tail -2 || { say "install failed"; rollback; }
+fi
+
+say "building"
+if ! build > /tmp/deploy-$APP.log 2>&1; then
+  tail -20 /tmp/deploy-$APP.log
+  say "build failed"
+  log "BUILD FAILED $(git rev-parse --short "$TARGET")"
+  rollback
+fi
+
+say "reloading pm2 ($PM2_NAME)"
+reload || rollback
+if ! healthy; then
+  say "health check failed: $HEALTH_URL"
+  log "HEALTH FAILED $(git rev-parse --short "$TARGET")"
+  rollback
+fi
+
+if [ -n "$POST_RELOAD" ]; then
+  say "post reload: $POST_RELOAD"
+  bash -c "$POST_RELOAD" >/dev/null || say "warning: post reload command failed"
+fi
+
+say "deployed $(git log -1 --format='%h %s') in $(( $(date +%s) - START ))s"
+log "OK $(git rev-parse --short "$PREV")->$(git rev-parse --short "$TARGET")"

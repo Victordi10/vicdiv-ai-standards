@@ -1,0 +1,32 @@
+# Deploy config for one app. Copy to ~/deploy/apps/<app>.conf on the server.
+# <app> is the name used in `deploy <app>`.
+
+# Absolute path of the app's git clone.
+DIR=$HOME/apps/my-group/my-app
+
+# Branch the server follows. The server only fast-forwards to origin/$BRANCH.
+BRANCH=main
+
+# Package manager: npm or pnpm (pnpm runs through corepack with the repo's pinned version).
+PM=pnpm
+
+# pm2 process name.
+PM2_NAME=my-app
+
+# restart: `pm2 restart $PM2_NAME`.
+# ecosystem: `pm2 startOrReload ecosystem.config.cjs --only $PM2_NAME`; use it when
+# ecosystem.config.cjs builds the env (for example with an ENV_KEYS whitelist).
+RELOAD=ecosystem
+
+# URL that must answer 2xx when the app is ready. Prefer a /health route.
+HEALTH_URL=http://127.0.0.1:3000/health
+
+# Seconds to wait for HEALTH_URL after the reload (default 60).
+HEALTH_TIMEOUT=60
+
+# Node heap limit for the build, in MB (default 1024).
+BUILD_MEMORY_MB=1024
+
+# Optional command run after a successful deploy, for example restarting a
+# GraphQL gateway that composes this app's schema.
+# POST_RELOAD="pm2 restart api-gateway"

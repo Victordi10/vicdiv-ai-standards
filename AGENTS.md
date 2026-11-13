@@ -484,6 +484,7 @@ Para decisiones que puedan afectar arquitectura, datos, seguridad, compatibilida
 - Git: `docs/git-standards.md`
 - Toolkit: `docs/toolkit.md`
 - Theming: `docs/theming.md`
+- Deploy: `docs/deployment.md`
 
 Skills:
 
@@ -491,6 +492,8 @@ Skills:
 - Endpoint: `skills/create-api-endpoint/SKILL.md`
 - Zustand: `skills/create-zustand-store/SKILL.md`
 - React component: `skills/create-react-component/SKILL.md`
+- React Native UX y performance: `skills/react-native-ux-performance/SKILL.md`
 - DB: `skills/db-connect/SKILL.md`
 - Code review: `skills/review-code/SKILL.md`
 - Setup de proyecto: `skills/setup-project/SKILL.md`
+- Deploy de una app: `skills/deploy-app/SKILL.md`
