@@ -493,6 +493,7 @@ Skills:
 - Zustand: `skills/create-zustand-store/SKILL.md`
 - React component: `skills/create-react-component/SKILL.md`
 - React Native UX y performance: `skills/react-native-ux-performance/SKILL.md`
+- Uso de vicdev-ui-lib e inputs: `skills/use-ui-library/SKILL.md`
 - DB: `skills/db-connect/SKILL.md`
 - Code review: `skills/review-code/SKILL.md`
 - Setup de proyecto: `skills/setup-project/SKILL.md`

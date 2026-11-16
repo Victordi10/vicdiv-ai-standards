@@ -22,6 +22,10 @@ Componentes disponibles:
 | Layout | `AppShell`, `LayoutProvider`, `AppHeader`, `SidebarNav`, `MobileNav`, `BreadcrumbNav`, `AppFooter` |
 | Identidad | `Logo` |
 | Botones | `ActionButton` |
+| Kit (inputs) | `TextField`, `PasswordField`, `NumberField`, `SearchField`, `DateField`, `TextArea`, `FileField`, `CalendarField`, `Dropdown` |
+| Kit (resto) | `Button`, `Checkbox`, `Radio`, `Toggle`, `Dialog`, `Alert`, `EmptyState`, `Badge`, `Chip`, `Tabs`, `Tooltip`, `Avatar`, … (catálogo: `src/index.ts` de la librería) |
+
+El kit no está en `1.4.0` publicado: solo existe en el repo local (`file:../vicdev-ui-react-lib`) hasta la próxima publicación. Comprobar que la versión instalada lo exporte antes de usarlo.
 
 ## Instalación
 
@@ -179,9 +183,33 @@ module.exports = {
 };
 ```
 
+## Inputs por tipo de dato
+
+El tipo de dato decide el componente, no el `type` del HTML. Nunca usar `<input type="number">` nativo: acepta `e`, `+`, `-` y pegados con letras.
+
+| Dato | Kit | Legacy (`FormField`) |
+| --- | --- | --- |
+| Entero (cantidad, documento, código) | `NumberField` (default `allow="digits"`) | `type="number" allow="digits"` |
+| Decimal con punto | `NumberField allow="decimal" inputMode="decimal"` | `type="number"` (default `decimal`) |
+| Cantidad formateada (`1.234,5`) | `NumberField allow="quantity"` + `parseQuantity` al enviar | `type="number" allow="quantity"` |
+| Dinero COP | `NumberField allow="quantity"`; mostrar con `CurrencyDisplay` | igual |
+| Teléfono | `TextField type="tel" allow="digits" inputMode="tel"` | `type="tel" allow="digits"` |
+| Email | `TextField type="email" autoComplete="email"` | `type="email"` |
+| Contraseña | `PasswordField` | `type="password"` |
+| Fecha | `DateField` / `CalendarField` | — |
+
+Reglas:
+
+- Filtrar al escribir con `allow` (o `sanitize` para reglas propias) y validar al enviar con Zod. El filtro no reemplaza la validación.
+- Guardar en el estado el texto filtrado; convertir a número solo al enviar (`parseQuantity`, `Number`).
+- Negativos no están soportados por los presets: usar `sanitize` propio y documentarlo.
+- `FormField` con `allow` requiere la versión de la librería que incluye esa prop (posterior a `1.4.0`).
+
 ## Reglas de uso
 
 - Buscar el componente en `vicdev-ui-lib` antes de crear uno nuevo.
 - Los componentes usan tokens del tema (`bg-primary`, `text-muted-foreground`), nunca colores hardcodeados.
 - Componer clases con `cn()` y respetar las convenciones de `docs/component-standards.md`.
+- En código nuevo preferir el kit (`TextField`, `NumberField`, `Button`, `Dialog`) cuando la versión instalada lo exporte; `FormField`, `ActionButton` y `Modal` siguen soportados.
+- Elegir estado o tono por props (`state`, `tone`, `variant`); `className` solo para layout.
 - La librería es web (React). No existe aún versión React Native: cuando exista se documentará aquí.
